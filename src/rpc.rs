@@ -88,7 +88,8 @@ impl Connection {
 
     fn blockchain_scripthash_get_oldest_tx(&self, params: &[Value]) -> Result<Value> {
         let script_hash = hash_from_value(params.get(0)).chain_err(|| "bad script_hash")?;
-        let oldest_tx = self.query.oldest_tx(&script_hash[..])?;
+        let current_block_index = params.get(1).and_then(|v| v.as_u64()).chain_err(|| "bad block_index")?;
+        let oldest_tx = self.query.oldest_tx(&script_hash[..], current_block_index)?;
         Ok(json!({"tx_hash":oldest_tx.txid.to_hex(),"block_index":oldest_tx.blockindex}))
     }
 
